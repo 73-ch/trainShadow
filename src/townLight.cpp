@@ -18,8 +18,11 @@ townLight::townLight(ofFbo* g_fbo, ofShader* g_shader) {
     settings.useDepth = true;
     settings.useStencil = true;
     settings.depthStencilAsTexture = true;
+    settings.minFilter = GL_LINEAR;
+    settings.maxFilter = GL_LINEAR;
+    settings.wrapModeVertical = GL_CLAMP_TO_BORDER;
+    settings.wrapModeHorizontal = GL_CLAMP_TO_BORDER;
     fbo.allocate(settings);
-    shader = g_shader;
 
     
     create_at = ofGetElapsedTimef();
@@ -27,11 +30,13 @@ townLight::townLight(ofFbo* g_fbo, ofShader* g_shader) {
     position = vec3(150, 100, -500);
     
     light.setNearClip(0.1f);
-    light.setFarClip(1000.0f);
+    light.setFarClip(500.0f);
     light.setPosition(vec3(150, 100, -500));
     light.setFov(50.0f);
     light.lookAt(light.getGlobalPosition() + vec3(-100, 0,0));
     light.rotateDeg(20.0f, vec3(0,0,1));
+    light.setAspectRatio(fbo.getWidth() / fbo.getHeight());
+//    light.enableOrtho();
 }
 
 bool townLight::update() {
@@ -46,7 +51,7 @@ bool townLight::update() {
 
 void townLight::begin() {
     glEnable(GL_CULL_FACE);
-    
+    glEnable(GL_DEPTH_TEST);
 //    ofEnableDepthTest();
     fbo.begin();
     ofClear(255, 255, 255, 255);
@@ -58,11 +63,11 @@ void townLight::begin() {
     glViewport(0, 0, fbo.getWidth(), fbo.getHeight());
     //
     
-    shader->begin();
+//    shader->begin();
 }
 
 void townLight::end() {
-    shader->end();
+//    shader->end();
     fbo.end();
 //    ofPopMatrix();
     

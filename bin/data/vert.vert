@@ -9,7 +9,7 @@ uniform mat4 mMatrix;
 uniform mat4 mvpMatrix;
 uniform mat4 tMatrix[LIGHT_NUM];
 uniform mat4 lgtMatrix[LIGHT_NUM];
-out vec3 vPosition;
+out vec4 vPosition;
 out vec3 vNormal;
 out vec4 vColor;
 out vec4 vTexCoord[LIGHT_NUM];
@@ -17,11 +17,11 @@ out vec4 vDepth[LIGHT_NUM];
 
 
 void main() {
-    vPosition = (mMatrix * position).xyz;
+    vPosition = (mMatrix * position);
     vNormal = normal.xyz;
     vColor = color;
     for (int i = 0; i < LIGHT_NUM; i++) {
-        vTexCoord[i] = tMatrix[0] * vec4(vPosition, 1.0);
+        vTexCoord[i] = tMatrix[0] * vPosition;
         vDepth[i] = lgtMatrix[0] * position;
     }
     gl_Position = mvpMatrix * position;

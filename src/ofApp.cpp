@@ -10,7 +10,7 @@ void ofApp::setup(){
     glEnable(GL_CULL_FACE);
     GLint textureUnits = 0;
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
-    cout << "texture units " + ofToString(textureUnits) << endl;
+//    cout << "texture units " + ofToString(  cntextureUnits) << endl;
     light_max = textureUnits;
     //
     
@@ -41,10 +41,10 @@ void ofApp::setup(){
     //
     
     // light
-    light.setPosition(vec3(150, 100, -500));
-    light.setFov(50.0f);
-    light.lookAt(light.getGlobalPosition() + vec3(-100, 0,0));
-    light.rotateDeg(20.0f, vec3(0,0,1));
+//    light.setPosition(vec3(150, 100, -500));
+//    light.setFov(50.0f);
+//    light.lookAt(light.getGlobalPosition() + vec3(-100, 0,0));
+//    light.rotateDeg(20.0f, vec3(0,0,1));
     
     light_count = 0;
     //
@@ -53,6 +53,8 @@ void ofApp::setup(){
     box.setPosition(vec3(110, 100,-100));
     box.set(50);
     
+    
+    // ライトごとになってない
     btm = scale(btm, vec3(fbo.getWidth(), fbo.getHeight(), 1.0f));
     btm = btm * mat4(0.5,0,0,0, 0,0.5,0,0, 0,0,1.0,0, 0.5,0.5,0,1.0);
     //
@@ -64,6 +66,9 @@ void ofApp::setup(){
     mesh = loader.getMesh(0);
     for (int i = 0; i < mesh.getNumVertices(); i++) mesh.addColor(ofColor(255,255,255,255));
     //
+    
+    // test
+    tolerate = 0.;
 }
 
 //--------------------------------------------------------------
@@ -90,7 +95,9 @@ void ofApp::update(){
             light_count++;
             if (light_count >= light_max) light_count = 0;
         } else if (m.getAddress() == "/test") {
-            lights[0].position = vec3(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2));
+//            lights[0].position = vec3(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2));
+        } else if (m.getAddress() == "/tolerate") {
+            tolerate = m.getArgAsFloat(0);
         }
     }
     //
@@ -113,6 +120,7 @@ void ofApp::update(){
 void ofApp::draw(){
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+//    glCullFace(GL_FRONT);
     
     mat4 bmm = box.getGlobalTransformMatrix();
     
@@ -140,15 +148,23 @@ void ofApp::draw(){
 //    fbo.end();
 //    ofPopMatrix();
     
+//    d_shader.begin();
+    
     for (int i = 0; i < lights.size(); i++) {
         lights[0].begin();
+        
+        d_shader.begin();
+        
         d_shader.setUniformMatrix4f("lgtMatrix", lights[0].light.getModelViewProjectionMatrix() * bmm);
         box.draw();
 
         d_shader.setUniformMatrix4f("lgtMatrix", lights[0].light.getModelViewProjectionMatrix() * mmm);
         mesh.draw();
+        d_shader.end();
         lights[0].end();
     }
+    
+//    d_shader.end();
 
     
     
@@ -166,12 +182,13 @@ void ofApp::draw(){
     ofEnableDepthTest();
     
     ofTexture tex;
-    tex = fbo.getDepthTexture();
+//    tex = fbo.getDepthTexture();
     tex.setTextureWrap(GL_CLAMP_TO_BORDER_ARB, GL_CLAMP_TO_BORDER_ARB);
     
     shader.setUniformMatrix4f("mMatrix", bmm);
     shader.setUniformMatrix4f("mvpMatrix", tmpm * bmm);
     shader.setUniformMatrix4f("invMatrix", inverse(bmm));
+    shader.setUniform1f("tolerate", tolerate);
 //    shader.setUniformMatrix4f("tMatrix", btm * light.getModelViewProjectionMatrix());
 //    shader.setUniformMatrix4f("lgtMatrix", light.getModelViewProjectionMatrix());
 //    shader.setUniform3f("lightPosition", light.getGlobalPosition());
@@ -184,7 +201,7 @@ void ofApp::draw(){
         } else {
             shader.setUniform1i("active_light[0]", true);
             shader.setUniformMatrix4f("tMatrix[0]", btm * lights[0].light.getModelViewProjectionMatrix());
-            shader.setUniformMatrix4f("lgtMatrix[0]", lights[0].light.getModelViewProjectionMatrix() * bmm);
+            shader.setUniformMatrix4f("lgtMatrix[0]", lights[0].light.getModelViewProjectionMatrix() * mmm);
             shader.setUniform3f("lightPosition[0]", lights[0].light.getGlobalPosition());
             shader.setUniformTexture("d_texture[0]", lights[0].tex, 0);
             
@@ -205,6 +222,7 @@ void ofApp::draw(){
     shader.setUniformMatrix4f("mvpMatrix", tmpm * mmm);
     shader.setUniformMatrix4f("invMatrix", inverse(mmm));
     shader.setUniform4f("ambientColor", vec4(0.1,0.1,0.1,1.0));
+    shader.setUniform1f("tolerate", tolerate);
     
     for (int i = 0; i < 1; i++) {
         if (i >= lights.size()) {

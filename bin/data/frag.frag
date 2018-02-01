@@ -6,7 +6,10 @@ uniform vec3 lightPosition[LIGHT_NUM];
 uniform sampler2DRect d_texture[LIGHT_NUM];
 uniform bool active_light[LIGHT_NUM];
 uniform vec4 ambientColor;
-in vec3 vPosition;
+
+uniform float tolerate;
+
+in vec4 vPosition;
 in vec3 vNormal;
 in vec4 vColor;
 in vec4 vTexCoord[LIGHT_NUM];
@@ -28,26 +31,29 @@ void main(){
     
     for (int i = 0; i < LIGHT_NUM; i++) {
         if (active_light[i]) {
-            vec3  light     = lightPosition[i] - vPosition;
+            vec3  light     = lightPosition[i] - vPosition.xyz;
             vec3  invLight  = normalize(invMatrix * vec4(light, 0.0)).xyz;
             float diffuse   = clamp(dot(vNormal, invLight), 0.2, 1.0);
-            float shadow    = restDepth(textureProj(d_texture[i], vTexCoord[i]));
+//            float shadow    = restDepth(textureProj(d_texture[i], vTexCoord[i]));
+            float shadow = textureProj(d_texture[i], vTexCoord[i]).x;
             vec4 depthColor = vec4(1.0);
             if(vDepth[i].w > 0.0){
                 vec4 lightCoord = vDepth[i] / vDepth[i].w;
-                if(lightCoord.z > shadow){
+                if(lightCoord.z - 0.0001 > shadow){
                     depthColor  = vec4(0.5, 0.5, 0.5, 1.0);
                     test = vec4(1.0, 1.0, 0.5, 1.0);
                 }
             }
             
             final = vec4(vec3(diffuse), 1.0) * depthColor;
+//            final = vec4(vec3(shadow/tolerate), 1.0);
+//            final = depthColor;
         }
     }
 //    outColor = vec4(vec3(length(vPosition)), 1.0);
     outColor = final;
 //    outColor = textureProj(d_texture[0], vTexCoord[0]);
-//    outColor = vec4(vesc3(restDepth(textureProj(d_texture[0], vTexCoord[0]))),1.);
+//    outColor = vec4(vec3(restDepth(textureProj(d_texture[0], vTexCoord[0]))),1.);
 //    outColor = test;
 //    outColor = vec4(vec3((vDepth[0] / vDepth[0].w).z), 1.0);
 }

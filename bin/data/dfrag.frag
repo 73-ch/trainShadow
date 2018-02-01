@@ -16,5 +16,6 @@ vec4 convRGBA(float depth){
 }
 
 void main(void){
-    outColor = convRGBA(gl_FragCoord.z);
+//    outColor = convRGBA(gl_FragCoord.z);
+    outColor = vec4(gl_FragCoord.z);
 }

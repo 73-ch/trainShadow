@@ -53,4 +53,6 @@ class ofApp : public ofBaseApp{
     mat4 mmm;
     
     ofMesh mesh;
+    
+    float tolerate;
 };
