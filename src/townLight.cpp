@@ -30,7 +30,7 @@ townLight::townLight(ofFbo* g_fbo, ofShader* g_shader) {
     position = vec3(150, 100, -500);
     
     light.setNearClip(0.1f);
-    light.setFarClip(500.0f);
+    light.setFarClip(300.0f);
     light.setPosition(vec3(150, 100, -500));
     light.setFov(50.0f);
     light.lookAt(light.getGlobalPosition() + vec3(-100, 0,0));
@@ -52,7 +52,9 @@ bool townLight::update() {
 void townLight::begin() {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-//    ofEnableDepthTest();
+    glCullFace(GL_FRONT);
+    
+    ofEnableDepthTest();
     fbo.begin();
     ofClear(255, 255, 255, 255);
 //    ofPushMatrix();
@@ -72,6 +74,7 @@ void townLight::end() {
 //    ofPopMatrix();
     
 //    tex = fbo.getDepthTexture();
+    glCullFace(GL_BACK);
     tex = fbo.getTexture();
     tex.setTextureWrap(GL_CLAMP_TO_BORDER_ARB, GL_CLAMP_TO_BORDER_ARB);
     

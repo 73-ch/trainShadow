@@ -97,7 +97,8 @@ void ofApp::update(){
         } else if (m.getAddress() == "/test") {
 //            lights[0].position = vec3(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2));
         } else if (m.getAddress() == "/tolerate") {
-            tolerate = m.getArgAsFloat(0);
+//            tolerate = m.getArgAsFloat(0);
+            lights[0].light.setFarClip(m.getArgAsFloat(0));
         }
     }
     //
@@ -154,7 +155,7 @@ void ofApp::draw(){
         lights[0].begin();
         
         d_shader.begin();
-        
+        d_shader.setUniform1f("clipD", lights[0].light.getFarClip()- lights[0].light.getNearClip());
         d_shader.setUniformMatrix4f("lgtMatrix", lights[0].light.getModelViewProjectionMatrix() * bmm);
         box.draw();
 
@@ -200,8 +201,9 @@ void ofApp::draw(){
             shader.setUniform1i("active_light[" + ofToString(i) + "]", false);
         } else {
             shader.setUniform1i("active_light[0]", true);
+            shader.setUniform1f("clipD", lights[0].light.getFarClip()- lights[0].light.getNearClip());
             shader.setUniformMatrix4f("tMatrix[0]", btm * lights[0].light.getModelViewProjectionMatrix());
-            shader.setUniformMatrix4f("lgtMatrix[0]", lights[0].light.getModelViewProjectionMatrix() * mmm);
+            shader.setUniformMatrix4f("lgtMatrix[0]", lights[0].light.getModelViewProjectionMatrix() * bmm);
             shader.setUniform3f("lightPosition[0]", lights[0].light.getGlobalPosition());
             shader.setUniformTexture("d_texture[0]", lights[0].tex, 0);
             
