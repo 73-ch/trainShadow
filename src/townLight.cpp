@@ -7,8 +7,10 @@
 //
 
 #include "townLight.h"
-townLight::townLight(ofFbo* g_fbo, ofShader* g_shader) {
+townLight::townLight(ofFbo* g_fbo, ofxShaderTex* g_shader) {
 //    fbo = g_fbo;
+    
+    shader = g_shader;
     
     float length = 4096;
 
@@ -23,6 +25,9 @@ townLight::townLight(ofFbo* g_fbo, ofShader* g_shader) {
     settings.wrapModeVertical = GL_CLAMP_TO_BORDER;
     settings.wrapModeHorizontal = GL_CLAMP_TO_BORDER;
     fbo.allocate(settings);
+    
+    btm = scale(btm, vec3(fbo.getWidth(), fbo.getHeight(), 1.0f));
+    btm = btm * mat4(0.5,0,0,0, 0,0.5,0,0, 0,0,1.0,0, 0.5,0.5,0,1.0);
 
     
     create_at = ofGetElapsedTimef();
@@ -40,7 +45,8 @@ townLight::townLight(ofFbo* g_fbo, ofShader* g_shader) {
 }
 
 bool townLight::update() {
-    float time = (ofGetElapsedTimef() - create_at)/10;
+    float time = (ofGetElapsedTimef() - create_at)/10.;
+    tm = btm * light.getModelViewProjectionMatrix();
     if (time >= 1) {
         return true;
     } else {
@@ -52,7 +58,9 @@ bool townLight::update() {
 void townLight::begin() {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    // depthバッファ作成時はフロントにしてあげることでシャドウのギザギザをなくせる、計算誤差の削除
     glCullFace(GL_FRONT);
+    
     
     ofEnableDepthTest();
     fbo.begin();
@@ -65,18 +73,22 @@ void townLight::begin() {
     glViewport(0, 0, fbo.getWidth(), fbo.getHeight());
     //
     
-//    shader->begin();
+    shader->begin();
 }
 
 void townLight::end() {
-//    shader->end();
+    shader->end();
     fbo.end();
 //    ofPopMatrix();
     
 //    tex = fbo.getDepthTexture();
     glCullFace(GL_BACK);
+}
+
+ofTexture townLight::getTexture() {
+    ofTexture tex;
     tex = fbo.getTexture();
     tex.setTextureWrap(GL_CLAMP_TO_BORDER_ARB, GL_CLAMP_TO_BORDER_ARB);
-    
+    return tex;
 }
 

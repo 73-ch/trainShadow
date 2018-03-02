@@ -1,5 +1,5 @@
 #version 150
-#define LIGHT_NUM 1
+#define LIGHT_NUM 5
 
 in vec4 position;
 in vec4 normal;
@@ -21,8 +21,10 @@ void main() {
     vNormal = normal.xyz;
     vColor = color;
     for (int i = 0; i < LIGHT_NUM; i++) {
-        vTexCoord[i] = tMatrix[0] * vPosition;
-        vDepth[i] = lgtMatrix[0] * position;
+        vTexCoord[i] = tMatrix[i] * vPosition;
+        vDepth[i] = lgtMatrix[i] * vPosition;
     }
+    
+    vTexCoord[1] = tMatrix[1] * vPosition;
     gl_Position = mvpMatrix * position;
 }                   

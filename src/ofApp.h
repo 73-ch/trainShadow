@@ -4,6 +4,7 @@
 #include "ofxOsc.h"
 #include "ofxAssimpModelLoader.h"
 #include "townLight.h"
+#include "ofxShaderTex.h"
 
 using namespace glm;
 
@@ -36,9 +37,9 @@ class ofApp : public ofBaseApp{
     
     ofBoxPrimitive box;
     
-    ofShader shader;
-    ofShader d_shader;
-    ofShader t_shader;
+    ofxShaderTex shader;
+    ofxShaderTex d_shader;
+    ofxShaderTex t_shader;
     
     ofFbo fbo;
     
