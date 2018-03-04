@@ -64,6 +64,12 @@ void ofApp::setup(){
     
     // test
     tolerate = 0.;
+
+    
+    
+    for (int i = 0; i < 30; ++i) {
+        vbo.addVertex(vec3(ofRandom(50) + 100, ofRandom(100), i*33.3 -500));
+    }
 }
 
 //--------------------------------------------------------------
@@ -83,7 +89,12 @@ void ofApp::update(){
         if (m.getAddress() == "/light") {
             light.setPosition(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2));
         } else if (m.getAddress() == "/box") {
-            box.setPosition(vec3(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2)));
+            boxes.clear();
+            vbo.clear();
+            for (int i = 0; i < 30; ++i) {
+                vbo.addVertex(vec3(ofRandom(50) + 100, ofRandom(100), i*33.3 -500));
+            }
+
         } else if (m.getAddress() == "/create_light") {
             ofCamera cam;
             lights.push_back(*new townLight(&fbo, &d_shader));
@@ -110,6 +121,9 @@ void ofApp::update(){
         }
     }
     //
+    int g = int(ofGetElapsedTimef() * 20.) % 30;
+    
+    vbo.getVertices()[g] = vec3(ofRandom(50) + 100, ofRandom(100), g*33.3 -500);
 }
 
 //--------------------------------------------------------------
@@ -128,9 +142,19 @@ void ofApp::draw(){
         
 //        d_shader.begin();
         d_shader.setUniform1f("clipD", lights[i].light.getFarClip()- lights[i].light.getNearClip());
-        d_shader.setUniformMatrix4f("lgtMatrix", lights[i].light.getModelViewProjectionMatrix() * bmm);
-        box.draw();
-
+//        d_shader.setUniformMatrix4f("lgtMatrix", lights[i].light.getModelViewProjectionMatrix() * bmm);
+//        box.draw();
+        
+//        for (auto b : boxes) {
+//            d_shader.setUniformMatrix4f("lgtMatrix", lights[i].light.getModelViewProjectionMatrix() * b.getGlobalTransformMatrix());
+//            b.draw();
+//        }
+        d_shader.setUniformMatrix4f("lgtMatrix", lights[i].light.getModelViewProjectionMatrix());
+        vbo.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+        glDisable(GL_CULL_FACE);
+        vbo.draw();
+        
+        
         d_shader.setUniformMatrix4f("lgtMatrix", lights[i].light.getModelViewProjectionMatrix() * mmm);
         mesh.draw();
 //        d_shader.end();
@@ -151,18 +175,6 @@ void ofApp::draw(){
     cam.begin();
     glEnable(GL_CULL_FACE);
     ofEnableDepthTest();
-    
-//    ofTexture tex;
-////    tex = fbo.getDepthTexture();
-//    tex.setTextureWrap(GL_CLAMP_TO_BORDER_ARB, GL_CLAMP_TO_BORDER_ARB);
-    
-    shader.setUniformMatrix4f("mMatrix", bmm);
-    shader.setUniformMatrix4f("mvpMatrix", tmpm * bmm);
-    shader.setUniformMatrix4f("invMatrix", inverse(bmm));
-    shader.setUniform1f("tolerate", tolerate);
-    
-//    array<float, 5> clipDs;
-//    vector<int> active_lights;
     
     array<mat4, 5> tMatrixes;
     array<mat4, 5> lgtMatrixes;
@@ -193,11 +205,19 @@ void ofApp::draw(){
     shader.setUniformMatrix4f("tMatrix", tMatrixes[0], tMatrixes.size());
     shader.setUniformMatrix4f("lgtMatrix", lgtMatrixes[0], lgtMatrixes.size());
     shader.setUniformArrayTexture("d_texture", d_textures);
+
     
+    shader.setUniformMatrix4f("mMatrix", mat4());
+    shader.setUniformMatrix4f("mvpMatrix", tmpm);
+    shader.setUniformMatrix4f("invMatrix", inverse(mat4()));
+    vbo.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+    glDisable(GL_CULL_FACE);
+    vbo.draw();
+    glEnable(GL_CULL_FACE);
     
     
     ofSetColor(255, 255, 255);
-    box.draw();
+//    box.draw();
     
     shader.setUniformMatrix4f("mMatrix", mmm);
     shader.setUniformMatrix4f("mvpMatrix", tmpm * mmm);

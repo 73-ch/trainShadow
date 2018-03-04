@@ -35,6 +35,10 @@ class ofApp : public ofBaseApp{
     int light_count;
     int light_max;
     
+    vector<ofBoxPrimitive> boxes;
+    
+    ofVboMesh vbo;
+    
     ofBoxPrimitive box;
     
     ofxShaderTex shader;
