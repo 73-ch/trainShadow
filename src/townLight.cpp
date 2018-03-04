@@ -45,7 +45,7 @@ townLight::townLight(ofFbo* g_fbo, ofxShaderTex* g_shader) {
 }
 
 bool townLight::update() {
-    float time = (ofGetElapsedTimef() - create_at)/10.;
+    float time = (ofGetElapsedTimef() - create_at);
     tm = btm * light.getModelViewProjectionMatrix();
     if (time >= 1) {
         return true;

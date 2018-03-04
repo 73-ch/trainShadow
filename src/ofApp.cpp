@@ -161,37 +161,40 @@ void ofApp::draw(){
     shader.setUniformMatrix4f("invMatrix", inverse(bmm));
     shader.setUniform1f("tolerate", tolerate);
     
-    array<float, 5> clipDs;
-    array<int, 5> active_lights;
-    array<mat4, 5> tMatrixs;
+//    array<float, 5> clipDs;
+//    vector<int> active_lights;
+    
+    array<mat4, 5> tMatrixes;
     array<mat4, 5> lgtMatrixes;
     array<vec3, 5> lightPositions;
-    array<float, 5> d_textures;
+    vector<ofTexture> d_textures;
+    
+    GLfloat clipDs[5];
+    GLint active_lights[5];
+
     
     for (int i = 0; i < 5; i++) {
         if (i >= lights.size()) {
-//            shader.setUniform1i("active_light[" + ofToString(i) + "]", false);
             active_lights[i] = false;
         } else {
-            shader.setUniform1f("clipD[" + ofToString(i) + "]", lights[i].light.getFarClip()- lights[i].light.getNearClip());
-            shader.setUniform1i("active_light[" + ofToString(i) + "]", true);
-            shader.setUniformMatrix4f("tMatrix[" + ofToString(i) + "]", lights[i].tm);
-            shader.setUniformMatrix4f("lgtMatrix[" + ofToString(i) + "]", lights[i].light.getModelViewProjectionMatrix());
-            shader.setUniform3f("lightPosition[" + ofToString(i) + "]", lights[i].light.getGlobalPosition());
-            shader.setUniformTexture("d_texture" + ofToString(i), lights[i].getTexture(), i);
-//            shader.setUniform1fv("clipD", lights[i].light.getFarClip()- lights[i].light.getNearClip());
+            d_textures.push_back(lights[i].getTexture());
             
             active_lights[i] = true;
             clipDs[i] = lights[i].light.getFarClip() - lights[i].light.getNearClip();
-            tMatrixs[i] = lights[i].tm;
+            tMatrixes[i] = lights[i].tm;
             lgtMatrixes[i] = lights[i].light.getModelViewProjectionMatrix();
             lightPositions[i] = lights[i].light.getGlobalPosition();
         }
     }
     
-    shader.setUniform1iv("active_light[0]", &active_lights[0], 5);
-//    shader.setUniform1fv("clipD[0]", &clipDs[0], 5);
-//    shader.setUniform3fv("lightPosition[0]", (float*)&lightPositions[0], 5);
+    shader.setUniform1iv("active_light", &active_lights[0], 5);
+    shader.setUniform1fv("clipD", &clipDs[0], 5);
+    shader.setUniform3fv("lightPosition", &lightPositions[0].x, lightPositions.size());
+    shader.setUniformMatrix4f("tMatrix", tMatrixes[0], tMatrixes.size());
+    shader.setUniformMatrix4f("lgtMatrix", lgtMatrixes[0], lgtMatrixes.size());
+    shader.setUniformArrayTexture("d_texture", d_textures);
+    
+    
     
     ofSetColor(255, 255, 255);
     box.draw();
@@ -208,10 +211,10 @@ void ofApp::draw(){
     
     // debug
     cam.begin();
-    light.draw();
-//    ofDrawSphere(light.getGlobalPosition() + light.getLookAtDir() * 10., 5);¥
+//    light.draw();
+//    ofDrawSphere(light.getGlobalPosition() + light.getLookAtDir() * 10., 5);
     for(auto l : lights) {
-        l.light.draw();
+//        l.light.draw();
     }
     cam.end();
     //
@@ -224,13 +227,9 @@ void ofApp::draw(){
     for (int i = 0; i < lights.size(); i++) {
         ofSetColor(255,255,255,255);
 //        ofPushMatrix();
-        lights[i].getTexture().draw(i * 100, 0, 100, 100);
-//        tex.draw(0, 0, 100,100);
+//        lights[i].getTexture().draw(i * 100, 0, 100, 100);
 //        ofPopMatrix();
-//        lights[i].tex.unbind();
     }
-    
-//    if(!depthBuffer) fbo.draw(0, 0, 150, 150);
 }
 
 //--------------------------------------------------------------

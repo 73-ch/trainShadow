@@ -25,6 +25,5 @@ void main() {
         vDepth[i] = lgtMatrix[i] * vPosition;
     }
     
-    vTexCoord[1] = tMatrix[1] * vPosition;
     gl_Position = mvpMatrix * position;
 }                   
