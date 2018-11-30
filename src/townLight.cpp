@@ -12,14 +12,14 @@ townLight::townLight(ofFbo* g_fbo, ofxShaderTex* g_shader) {
     
     shader = g_shader;
     
-    float length = 4096;
+    float length = 1024;
 
     ofFbo::Settings settings;
     settings.width = length;
     settings.height = length;
     settings.useDepth = true;
-    settings.useStencil = true;
-    settings.depthStencilAsTexture = true;
+    settings.useStencil = false;
+    settings.depthStencilAsTexture = false;
     settings.minFilter = GL_LINEAR;
     settings.maxFilter = GL_LINEAR;
     settings.wrapModeVertical = GL_CLAMP_TO_BORDER;

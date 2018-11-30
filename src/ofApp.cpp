@@ -56,7 +56,9 @@ void ofApp::setup(){
     
     // model
     loader.setScale(2.0,2.0,2.0);
-    loader.loadModel("train_shadow.stl");
+    loader.loadModel("test.obj");
+    
+    ofLogNotice() << loader.getMeshCount();
     
     mesh = loader.getMesh(0);
     for (int i = 0; i < mesh.getNumVertices(); i++) mesh.addColor(ofColor(255,255,255,255));
@@ -68,8 +70,10 @@ void ofApp::setup(){
     
     
     for (int i = 0; i < 30; ++i) {
-        vbo.addVertex(vec3(ofRandom(50) + 100, ofRandom(100), i*33.3 -500));
+        vbo.addVertex(vec3(ofRandom(-15, 15), ofRandom(15)+50, i*33.3 -500));
     }
+    
+    cout << (1L << 4L) << endl;
 }
 
 //--------------------------------------------------------------
@@ -123,7 +127,7 @@ void ofApp::update(){
     //
     int g = int(ofGetElapsedTimef() * 20.) % 30;
     
-    vbo.getVertices()[g] = vec3(ofRandom(50) + 100, ofRandom(100), g*33.3 -500);
+    vbo.getVertices()[g] = vec3(ofRandom(-25, 50), ofRandom(75)+25, g*33.3 -500);
 }
 
 //--------------------------------------------------------------
